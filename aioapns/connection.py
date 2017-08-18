@@ -226,6 +226,7 @@ class APNsBaseClientProtocol(H2Protocol):
 
 class APNsTLSClientProtocol(APNsBaseClientProtocol):
     APNS_SERVER = 'api.push.apple.com'
+    APNS_DEVELOPMENT_SERVER = 'api.development.push.apple.com'
     APNS_PORT = 443
 
     def close(self):
@@ -238,10 +239,11 @@ class APNsTLSClientProtocol(APNsBaseClientProtocol):
 class APNsConnectionPool:
     MAX_ATTEMPTS = 10
 
-    def __init__(self, cert_file, max_connections=10, loop=None):
+    def __init__(self, cert_file, password=None, max_connections=10, loop=None, use_sandbox=False):
         self.cert_file = cert_file
+        self.use_sandbox = use_sandbox
         self.ssl_context = SSLContext()
-        self.ssl_context.load_cert_chain(cert_file)
+        self.ssl_context.load_cert_chain(cert_file, password=password)
         self.max_connections = max_connections
         self.loop = loop or asyncio.get_event_loop()
         self.connections = []
@@ -262,7 +264,7 @@ class APNsConnectionPool:
                 self.loop,
                 self.discard_connection
             ),
-            host=APNsTLSClientProtocol.APNS_SERVER,
+            host=APNsTLSClientProtocol.APNS_DEVELOPMENT_SERVER if self.use_sandbox else APNsTLSClientProtocol.APNS_SERVER,
             port=APNsTLSClientProtocol.APNS_PORT,
             ssl=self.ssl_context
         )

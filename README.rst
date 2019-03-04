@@ -4,6 +4,10 @@ aioapns - An efficient APNs Client Library for Python/asyncio
 .. image:: https://travis-ci.org/Fatal1ty/aioapns.svg?branch=master
     :target: https://travis-ci.org/Fatal1ty/aioapns
 
+.. image:: https://requires.io/github/Fatal1ty/aioapns/requirements.svg?branch=master
+     :target: https://requires.io/github/Fatal1ty/aioapns/requirements/?branch=master
+     :alt: Requirements Status
+
 .. image:: https://img.shields.io/pypi/v/aioapns.svg
     :target: https://pypi.python.org/pypi/aioapns
 
@@ -34,6 +38,7 @@ Features
 * Ability to set TTL (time to live) for notifications
 * Ability to set priority for notifications
 * Ability to set collapse-key for notifications
+* Ability to use production or development APNs server
 
 
 Installation
@@ -54,7 +59,7 @@ Basic Usage
 
 
     async def run():
-        apns = APNs('/path/to/apns-production-cert.pem')
+        apns = APNs('/path/to/apns-production-cert.pem', use_sandbox=False)
         request = NotificationRequest(
             device_token='<DEVICE_TOKEN>',
             message = {

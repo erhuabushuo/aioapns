@@ -13,7 +13,7 @@ from h2.settings import SettingCodes
 
 from aioapns.common import NotificationResult, DynamicBoundedSemaphore,\
     APNS_RESPONSE_CODE
-from aioapns.exceptions import ConnectionClosed
+from aioapns.exceptions import ConnectionClosed, ConnectionError
 from aioapns.logging import logger
 
 
@@ -196,7 +196,7 @@ class APNsBaseClientProtocol(H2Protocol):
             self.request_statuses[notification_id] = status
 
     def on_data_received(self, data, stream_id):
-        data = json.loads(data)
+        data = json.loads(data.decode())
         reason = data.get('reason', '')
         if not reason:
             return
@@ -225,8 +225,6 @@ class APNsBaseClientProtocol(H2Protocol):
 
 
 class APNsTLSClientProtocol(APNsBaseClientProtocol):
-    APNS_SERVER = 'api.push.apple.com'
-    APNS_DEVELOPMENT_SERVER = 'api.development.push.apple.com'
     APNS_PORT = 443
 
     def close(self):
@@ -236,18 +234,32 @@ class APNsTLSClientProtocol(APNsBaseClientProtocol):
         self.transport._ssl_protocol._transport.close()
 
 
+class APNsProductionClientProtocol(APNsTLSClientProtocol):
+    APNS_SERVER = 'api.push.apple.com'
+
+
+class APNsDevelopmentClientProtocol(APNsTLSClientProtocol):
+    APNS_SERVER = 'api.development.push.apple.com'
+
+
 class APNsConnectionPool:
     MAX_ATTEMPTS = 10
 
-    def __init__(self, cert_file, password=None, max_connections=10, loop=None, use_sandbox=False):
+    def __init__(self, cert_file, password=None, max_connections=10, loop=None,
+                 use_sandbox=False):
         self.cert_file = cert_file
-        self.use_sandbox = use_sandbox
         self.ssl_context = SSLContext()
-        self.ssl_context.load_cert_chain(cert_file, password=password)
+        self.ssl_context.load_cert_chain(cert_file, password)
         self.max_connections = max_connections
+
+        if use_sandbox:
+            self.protocol_class = APNsDevelopmentClientProtocol
+        else:
+            self.protocol_class = APNsProductionClientProtocol
+
         self.loop = loop or asyncio.get_event_loop()
         self.connections = []
-        self._lock = asyncio.Lock()
+        self._lock = asyncio.Lock(loop=self.loop)
 
         with open(self.cert_file, 'rb') as f:
             body = f.read()
@@ -259,18 +271,22 @@ class APNsConnectionPool:
     async def connect(self):
         _, protocol = await self.loop.create_connection(
             protocol_factory=partial(
-                APNsTLSClientProtocol,
+                self.protocol_class,
                 self.apns_topic,
                 self.loop,
                 self.discard_connection
             ),
-            host=APNsTLSClientProtocol.APNS_DEVELOPMENT_SERVER if self.use_sandbox else APNsTLSClientProtocol.APNS_SERVER,
-            port=APNsTLSClientProtocol.APNS_PORT,
+            host=self.protocol_class.APNS_SERVER,
+            port=self.protocol_class.APNS_PORT,
             ssl=self.ssl_context
         )
         logger.info('Connection established (total: %d)',
                     len(self.connections) + 1)
         return protocol
+
+    def close(self):
+        for connection in self.connections:
+            connection.close()
 
     def discard_connection(self, connection):
         logger.debug('Connection %s discarded', connection)
@@ -289,7 +305,12 @@ class APNsConnectionPool:
                     self._lock.release()
                     return connection
             if len(self.connections) < self.max_connections:
-                connection = await self.connect()
+                try:
+                    connection = await self.connect()
+                except Exception as e:
+                    logger.error('Could not connect to server: %s', str(e))
+                    self._lock.release()
+                    raise ConnectionError()
                 self.connections.append(connection)
                 self._lock.release()
                 return connection
@@ -311,7 +332,13 @@ class APNsConnectionPool:
                                request.notification_id, attempt)
             logger.debug('Notification %s: waiting for connection',
                          request.notification_id)
-            connection = await self.acquire()
+            try:
+                connection = await self.acquire()
+            except ConnectionError:
+                logger.warning('Could not send notification %s: '
+                               'ConnectionError', request.notification_id)
+                await asyncio.sleep(1)
+                continue
             logger.debug('Notification %s: connection %s acquired',
                          request.notification_id, connection)
             try:

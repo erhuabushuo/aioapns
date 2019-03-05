@@ -245,11 +245,11 @@ class APNsDevelopmentClientProtocol(APNsTLSClientProtocol):
 class APNsConnectionPool:
     MAX_ATTEMPTS = 10
 
-    def __init__(self, cert_file, password=None, max_connections=10, loop=None,
+    def __init__(self, cert_file, cert_pass=None, max_connections=10, loop=None,
                  use_sandbox=False):
         self.cert_file = cert_file
         self.ssl_context = SSLContext()
-        self.ssl_context.load_cert_chain(cert_file, password)
+        self.ssl_context.load_cert_chain(cert_file, cert_pass)
         self.max_connections = max_connections
 
         if use_sandbox:

@@ -249,7 +249,7 @@ class APNsConnectionPool:
                  use_sandbox=False):
         self.cert_file = cert_file
         self.ssl_context = SSLContext()
-        self.ssl_context.load_cert_chain(cert_file, cert_pass)
+        self.ssl_context.load_cert_chain(cert_file, password=cert_pass)
         self.max_connections = max_connections
 
         if use_sandbox:

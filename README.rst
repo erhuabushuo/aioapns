@@ -1,4 +1,4 @@
-aioapns - An efficient APNs Client Library for Python/asyncio
+asyncapns - An efficient APNs Client Library for Python/asyncio
 =================================================================================
 
 .. image:: https://travis-ci.org/Fatal1ty/aioapns.svg?branch=master

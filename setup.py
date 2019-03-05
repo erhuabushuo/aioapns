@@ -4,8 +4,8 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='aioapns',
-    version='1.5',
+    name='asyncapns',
+    version='0.1',
     description='An efficient APNs Client Library for Python/asyncio',
     long_description=open('README.rst').read(),
     platforms="all",
@@ -20,9 +20,9 @@ setup(
         'Development Status :: 5 - Production/Stable',
     ],
     license='Apache License, Version 2.0',
-    author='Alexander Tikhonov',
-    author_email='random.gauss@gmail.com',
-    url='https://github.com/Fatal1ty/aioapns',
+    author='Aidan He',
+    author_email='erhuabushuo@gmail.com',
+    url='https://github.com/erhuabushuo/asyncapns',
     packages=find_packages(exclude=('tests',)),
     install_requires=[
         'h2==3.1.0',

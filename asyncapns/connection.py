@@ -11,10 +11,10 @@ from h2.events import ResponseReceived, DataReceived, RemoteSettingsChanged,\
 from h2.exceptions import NoAvailableStreamIDError, FlowControlError
 from h2.settings import SettingCodes
 
-from aioapns.common import NotificationResult, DynamicBoundedSemaphore,\
+from asyncapns.common import NotificationResult, DynamicBoundedSemaphore,\
     APNS_RESPONSE_CODE
-from aioapns.exceptions import ConnectionClosed, ConnectionError
-from aioapns.logging import logger
+from asyncapns.exceptions import ConnectionClosed, ConnectionError
+from asyncapns.logging import logger
 
 
 class ChannelPool(DynamicBoundedSemaphore):

@@ -1,5 +1,5 @@
-from aioapns.connection import APNsConnectionPool
-from aioapns.logging import logger
+from asyncapns.connection import APNsConnectionPool
+from asyncapns.logging import logger
 
 
 class APNs:

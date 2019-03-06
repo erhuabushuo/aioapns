@@ -1,34 +1,34 @@
 asyncapns - An efficient APNs Client Library for Python/asyncio
 =================================================================================
 
-.. image:: https://travis-ci.org/Fatal1ty/aioapns.svg?branch=master
-    :target: https://travis-ci.org/Fatal1ty/aioapns
+.. image:: https://travis-ci.org/erhuabushuo/asyncapns.svg?branch=master
+    :target: https://travis-ci.org/erhuabushuo/asyncapns
 
-.. image:: https://requires.io/github/Fatal1ty/aioapns/requirements.svg?branch=master
-     :target: https://requires.io/github/Fatal1ty/aioapns/requirements/?branch=master
+.. image:: https://requires.io/github/erhuabushuo/asyncapns/requirements.svg?branch=master
+     :target: https://requires.io/github/erhuabushuo/asyncapns/requirements/?branch=master
      :alt: Requirements Status
 
-.. image:: https://img.shields.io/pypi/v/aioapns.svg
-    :target: https://pypi.python.org/pypi/aioapns
+.. image:: https://img.shields.io/pypi/v/asyncapns.svg
+    :target: https://pypi.python.org/pypi/asyncapns
 
 .. image:: https://img.shields.io/pypi/pyversions/aioapns.svg
-    :target: https://pypi.python.org/pypi/aioapns/
+    :target: https://pypi.python.org/pypi/asyncapns/
 
 .. image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
     :target: https://opensource.org/licenses/Apache-2.0
 
-**aioapns** is a library designed specifically for sending push-notifications to iOS devices
+**asyncapns** is a library designed specifically for sending push-notifications to iOS devices
 via Apple Push Notification Service. aioapns provides an efficient client through
 asynchronous HTTP2 protocol for use with Python's ``asyncio``
 framework.
 
-aioapns requires Python 3.5 or later.
+asyncapns requires Python 3.5 or later.
 
 
 Performance
 -----------
 
-In my testing aioapns allows you to send on average 1.3k notifications per second on a single core.
+In my testing asyncapns allows you to send on average 1.3k notifications per second on a single core.
 
 
 Features
@@ -46,7 +46,7 @@ Installation
 
 Use pip to install::
 
-    $ pip install aioapns
+    $ pip install asyncapns
 
 
 Basic Usage
@@ -55,7 +55,7 @@ Basic Usage
 .. code-block:: python
 
     from uuid import uuid4
-    from aioapns import APNs, NotificationRequest
+    from asyncapns import APNs, NotificationRequest
 
 
     async def run():
